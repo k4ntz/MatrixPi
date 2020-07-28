@@ -1,36 +1,88 @@
 <html>
    <title>SVG Interactivity</title>
+   <head>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.16/svg.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.css">
+     <input id="color-picker" value='#276cb8' />
+     lines:<input type="number" id="lines_number" name="lines_number" min="1" max="20", onchange="generate_svg()", value="8">
+     cols:<input type="number" id="cols_number" name="cols_number" min="1" max="20", onchange="generate_svg()", value="8">
+
+       <script>
+       var selectedColor;
+       spectrumColor_A = $('#color-picker').spectrum({
+          type: "flat",
+          showPaletteOnly: "true",
+          hideAfterPaletteSelect: "true",
+          showInput: "true",
+          showAlpha: "false",
+          showButtons: "false"
+        });
+
+        $("#color-picker").on('move.spectrum', function(e, tinyColor) {
+          var hexVal = tinyColor.toHexString();
+          var color_a = document.getElementById('rect1');
+          selectedColor = hexVal;
+
+        });
+       </script>
+   </head>
    <body>
-
-      <h1>Sample Interactivity</h1>
-
-      <svg width="600" height="600">
+     <svg width="600" height="600" id="icon">
          <script type="text/JavaScript">
-            <![CDATA[
-                color = "blue"
-               function showArea(event){
-                  var width = parseFloat(event.target.getAttributeNS(null,"width"));
-                  var height = parseFloat(event.target.getAttributeNS(null,"height"));
-                  document.getElementById("rect1").setAttributeNS(null,"fill", color);
-               }
-
-               function showRootChildrenCount() {
-                  alert("Total Children: "+document.documentElement.childNodes.length);
-               }
-            ]]>
+         var colors_save = [];
+         nblines = document.getElementById("lines_number").value;
+         nbcols = document.getElementById("cols_number").value;
+         for (i = 0; i < nblines; i++){
+           colors_save.push([])
+           for (j=0; j < nbcols; j++){
+             colors_save[i].push("black")
+           }
+         }
+         function changecolor(clickedElement) {
+            clickedElement.setAttributeNS(null, "fill", selectedColor);
+            while(colors_save.length > 0){colors_save.pop();}
+            for (i = 0; i < nblines; i++){
+              colors_save.push([])
+              for (j=0; j < nbcols; j++){
+                colors_save[i].push(document.getElementById("rect"+i.toString()+j.toString()).getAttributeNS(null, "fill"))
+              }
+            }
+          }
+          function generate_svg() {
+            var ns = 'http://www.w3.org/2000/svg'
+            var svg = document.getElementById('icon')
+            nblines = document.getElementById("lines_number").value;
+            nbcols = document.getElementById("cols_number").value;
+            while (svg.lastElementChild) {
+              svg.removeChild(svg.lastElementChild);
+            }
+            for (i = 0; i < nblines; i++){
+              for (j=0; j < nbcols; j++){
+                  var rect = document.createElementNS(ns, 'rect')
+                  rect.setAttributeNS(null, 'x', j*40)
+                  rect.setAttributeNS(null, 'y', i*40)
+                  rect.setAttributeNS(null, 'width', 40)
+                  rect.setAttributeNS(null, 'id', "rect"+i.toString()+j.toString())
+                  rect.setAttributeNS(null, 'height', 40)
+                  rect.setAttributeNS(null, 'fill', "black")
+                  if (i < colors_save.length){
+                    if (j < colors_save[0].length){
+                      rect.setAttributeNS(null, 'fill', colors_save[i][j])
+                    }
+                  }
+                  rect.setAttributeNS(null, 'stroke-width', 3)
+                  rect.setAttributeNS(null, 'stroke', 'white')
+                  rect.setAttributeNS(null, 'onclick', 'changecolor(this)')
+                  svg.appendChild(rect)
+              }
+            }
+          }
+          generate_svg();
          </script>
 
-         <g>
-            <text x="30" y="50" onClick="showColor()">Click me to show rectangle color.</text>
 
-            <rect id="rect1" x="100" y="100" width="200" height="200"
-            stroke="green" stroke-width="3" fill="red"
-            onClick="showArea(event)"/>
-
-            <text x="30" y="400" onClick="showRootChildrenCount()">
-            Click me to print child node count.</text>
-         </g>
       </svg>
-
    </body>
 </html>
