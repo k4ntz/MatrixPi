@@ -1,5 +1,6 @@
 from colors import colors_dict
 import numpy as np
+import pickle
 
 icons = {
 "sun" : { "icon": [[0, 0, 1, 0, 0, 1, 0, 0],
@@ -110,3 +111,11 @@ def make_icon(name):
             mline.append(colors_dict[icon_dict["color_map"][pix_c]])
         icon_matrix.append(mline)
     return np.array(icon_matrix)
+
+
+if __name__ == '__main__':
+    made_icons = {}
+    for icon_name in icons:
+        made_icons[icon_name] = make_icon(icon_name)
+    with open("icons.pkl", "wb") as save_file:
+        pickle.dump(made_icons, save_file)

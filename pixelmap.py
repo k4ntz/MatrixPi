@@ -4,8 +4,11 @@ import board
 import neopixel
 from letters import letters_dict
 from colors import colors_dict
-from icons import make_icon
+import pickle
 from copy import deepcopy
+
+with open("icons.pkl", "rb") as icon_file:
+    icons = pickle.load(icon_file)
 
 class PixelScreen():
     def __init__(self, width=32, height=8):
@@ -16,12 +19,14 @@ class PixelScreen():
         self.height = height
         self.num_pixels = width * height
 
+
+
         # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
         # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
         ORDER = neopixel.GRB
 
         self.pixels = neopixel.NeoPixel(
-            pixel_pin, self.num_pixels, brightness=0.2, auto_write=False, pixel_order=ORDER
+            pixel_pin, self.num_pixels, brightness=0.15, auto_write=False, pixel_order=ORDER
         )
 
     def _show(self):
@@ -69,6 +74,10 @@ class PixelScreen():
                 self._anim(image_list, speed)
         else:
             self._anim(image_list, speed)
+
+    def set_brightness(self, brightness):
+        self.brightness = brightness
+
 
 
 class Piximage():
@@ -128,7 +137,7 @@ class Piximage():
         return x + len(lett_matrix[0])
 
     def insert_icon(self, icon_name, x=0, y=0):
-        icon_matrix = make_icon(icon_name)
+        icon_matrix = icons[icon_name]
         w, h, d = np.array(icon_matrix).shape
         if not self.empty(self.pixel_map[x:x+w, y:y+h]):
             print("You are writing on a non empty part")
@@ -189,11 +198,11 @@ if __name__ == '__main__':
     # import ipdb; ipdb.set_trace()
     # pim.insert_letters("COUCOU PROUTI < !!!", "white")
     screen = PixelScreen()
-    for icon in ["bulb"]:
-    # for icon in ["bulb", "gmail", "heart", "cloud", "sun", "checked"]:
+    # for icon in ["bulb"]:
+    for icon in ["bulb0", "gmail", "heart", "cloud", "sun", "checked"]:
         pim = Piximage()
-        # pim.insert_letters("HELLO YOU <", "darkred")
+        pim.insert_letters("FUCK YOU QUENTIN !", "red")
         # pim.insert_icon(icon)
-        screen.annimate([Piximage(icon="bulb1"), Piximage(icon="bulb0"), Piximage(icon="bulb2"), Piximage(icon="bulb0")])
+        # screen.annimate([Piximage(icon="bulb1"), Piximage(icon="bulb0"), Piximage(icon="bulb2"), Piximage(icon="bulb0")])
         screen.display_message(pim)
     screen.blackout()
